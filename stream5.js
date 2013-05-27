@@ -47,17 +47,16 @@ Noop.prototype._transform = function( chunk, encoding, done ){
   done();
 }
 
-var random, logger, noop, network, last_noop, new_noop;
+var random, logger, network, current_stream;
 
 random = new RandomNumbers();
 logger = new Logger();
 
-network = last_noop = new stream.PassThrough();
+network = current_stream = new stream.PassThrough();
 
 for( var i = 0; i < 5; i += 1 ){
-  new_noop = new Noop(i);
-  last_noop.pipe( new_noop );
-  last_noop = new_noop;
+  // .pipe( stream ) returns the dest
+  current_stream = current_stream.pipe( new Noop(i) );
 }
 
 random
