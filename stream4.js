@@ -1,46 +1,16 @@
-// 1. Readable, Writable
-// 2. Readable -> Writable + Readable -> Writable
-// 3. Readable -> Duplex -> Writable (manual backpressure)
-// 4. Readable -> Transform -> Writable ("automatic" backpressure)
+// Transform streams receiving multiple input source can be treated as mixers.
 
-// Writable -> Writable streams are streams that can accept input.
-// Readable -> Readable streams are streams that can provide output. (dual)
-// Duplex -> Duplex streams are streams that can accept and input and provide
-// outputs
+var RandomNumbers = require('./readable.js'),
+    Logger = require('./writable.js'),
+    stream = require('stream'),
 
-
-var stream = require('stream');
-
-function RandomNumbers(){
-  stream.Readable.call(this);
-  this.name = 'RandomNumbers';
-}
-
-RandomNumbers.prototype = Object.create( stream.Readable.prototype, { constructor : { value : RandomNumbers } } );
-
-RandomNumbers.prototype._read = function( size ){
-  setTimeout( function(){
-    this.push( ~~ (Math.random() * 10) + "" );
-  }.bind(this), 500 )
-}
-
-function Logger(){
-  stream.Writable.call(this);
-  this.on('pipe', function(src){
-    this.source = src.name || 'unknown';
-  }.bind(this));
-}
-
-Logger.prototype = Object.create( stream.Writable.prototype, { constructor : { value : Logger } } );
-
-Logger.prototype._write = function( chunk, encoding, done ){
-  console.log( "from: " + this.source + " | " + chunk.toString() );
-  done();
-}
+    random,
+    odd,
+    even,
+    pool;
 
 function Even(){
   stream.Transform.call(this);
-  this.name = 'Even';
 }
 
 Even.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Even } } );
@@ -53,7 +23,6 @@ Even.prototype._transform = function( chunk, encoding, done ){
 
 function Odd(){
   stream.Transform.call(this);
-  this.name = 'Odd'
 }
 
 Odd.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Odd } } );
@@ -66,7 +35,6 @@ Odd.prototype._transform = function( chunk, encoding, done ){
 
 function Pool(){
   stream.Transform.call(this);
-  this.name = 'Pool'
 }
 
 Pool.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Pool } } );
@@ -75,8 +43,6 @@ Pool.prototype._transform = function( chunk, encoding, done ){
   this.push( chunk );
   done();
 }
-
-var random, odd, even, pool;
 
 random = new RandomNumbers();
 odd = new Odd();
@@ -92,10 +58,10 @@ random
   .pipe(pool)
 
 odd
-  .pipe( new Logger() )
+  .pipe( new Logger('odd:') )
 
 even
-  .pipe( new Logger() )
+  .pipe( new Logger('even:') )
 
 pool
-  .pipe( new Logger() )
+  .pipe( new Logger('pool:') )
