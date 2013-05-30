@@ -1,8 +1,5 @@
-// connect a full duplex pipe between a readable and a writable module.
-// Full duplex modules provide both an input and an output terminal.
-
-var RandomNumbers = require('./readable.js'),
-    Logger = require('./writable.js'),
+var RandomNumbers = require('./stream-01-readable.js'),
+    Logger = require('./stream-02-writable.js'),
     stream = require('stream'),
 
     random,
@@ -16,7 +13,7 @@ function Square(){
 Square.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Square } } );
 
 Square.prototype._transform = function( chunk, encoding, done ){
-  var number = ~~ chunk.toString();
+  var number = parseInt(chunk.toString(), 10);
   this.push( (number * number) + "" );
   done();
 }

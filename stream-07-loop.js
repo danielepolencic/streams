@@ -1,7 +1,5 @@
-// Multiple transform blocks can be piped together using a loop
-
-var RandomNumbers = require('./readable.js'),
-    Logger = require('./writable.js'),
+var RandomNumbers = require('./stream-01-readable.js'),
+    Logger = require('./stream-02-writable.js'),
     stream = require('stream'),
 
     random,

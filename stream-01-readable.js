@@ -1,6 +1,3 @@
-// This is a redable stream.
-// Readable streams are streams that can provide an output
-
 var stream = require('stream');
 
 module.exports = RandomNumbers;
@@ -13,6 +10,6 @@ RandomNumbers.prototype = Object.create( stream.Readable.prototype, { constructo
 
 RandomNumbers.prototype._read = function( size ){
   setTimeout( function(){
-    this.push( ~~ (Math.random() * 10) + "" );
+    this.push(  parseInt(Math.random() * 10, 10) + "" );
   }.bind(this), 500 )
 }

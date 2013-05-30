@@ -1,7 +1,5 @@
-// Transform streams with the same input can be combined to create splitters
-
-var RandomNumbers = require('./readable.js'),
-    Logger = require('./writable.js'),
+var RandomNumbers = require('./stream-01-readable.js'),
+    Logger = require('./stream-02-writable.js'),
     stream = require('stream'),
 
     random,
@@ -15,7 +13,7 @@ function Even(){
 Even.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Even }} );
 
 Even.prototype._transform = function( chunk, encoding, done ){
-  var number = ~~ chunk.toString();
+  var number = parseInt(chunk.toString(), 10);
   this.push( number % 2 === 0 ? number + '' : '' );
   done();
 }
@@ -27,7 +25,7 @@ function Odd(){
 Odd.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Odd } } );
 
 Odd.prototype._transform = function( chunk, encoding, done ){
-  var number = ~~ chunk.toString();
+  var number = parseInt(chunk.toString(), 10);
   this.push( number % 2 !== 0 ? number + '' : '' );
   done();
 }
