@@ -11,6 +11,6 @@ Logger.prototype = Object.create( stream.Writable.prototype, { constructor : { v
 
 Logger.prototype._write = function( chunk, encoding, done ){
   var log = this.name ? this.name + " " : ""
-  console.log( log + chunk.toString() );
+  console.log( log + chunk.toString('ascii') );
   done();
 }

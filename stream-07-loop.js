@@ -14,7 +14,7 @@ function Noop( index ){
 Noop.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Noop } } );
 
 Noop.prototype._transform = function( chunk, encoding, done ){
-  console.log('i: ' + this.index + ' |', chunk.toString());
+  console.log('i: ' + this.index + ' |', chunk.toString('ascii'));
   this.push(chunk);
   done();
 }

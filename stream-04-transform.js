@@ -13,7 +13,7 @@ function Square(){
 Square.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Square } } );
 
 Square.prototype._transform = function( chunk, encoding, done ){
-  var number = parseInt(chunk.toString(), 10);
+  var number = parseInt(chunk.toString('ascii'), 10);
   this.push( (number * number) + "" );
   done();
 }
