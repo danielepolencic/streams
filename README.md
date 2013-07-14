@@ -40,3 +40,8 @@ as a mixer
 ## Loop
 Looping through streams can be easily achieved by remembering that the `.pipe`
 operation always returns the destination stream.
+
+## ObjectMode
+In Node.js v0.10.6 readable streams support the boolean flag `objectMode`, which
+ instructs the stream to use objects rather than `Buffer`s or `String`s. A very
+ simple hack is necessary for Writable streams, though [1](https://github.com/joyent/node/issues/5377).
