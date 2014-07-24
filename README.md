@@ -1,6 +1,29 @@
 # Streams playground
-A stream is an abstract interface implemented by various objects in Node. This
-tutorial covers the basic of streams interaction and creation.
+Suppose that you need to zip a 50GB Blue-ray disc so you can save space on your hard drive. You could write something like this:
+
+```js
+var fs = require('fs');
+var zlib = require('zlib');
+var movie = fs.readFileSync('movie.img');
+
+zlib.gzip(movie, function (err, buffer) {
+  fs.writeFileSync('movie.img.zip', buffer);
+})
+```
+
+The code works, but half way through the program crashes because it can't hold 50GB in memory. You two options: buy A LOT of RAM or slice the 50GB in chunks small enough to be hold in memory, zip and save them on disk. The latter is what streams are all about: you read and process stream of data chunk by chunk as they come in. Let's rewrite the example above using streams:
+
+```js
+var fs = require('fs');
+var zip = require('zlib').createGzip();
+var movie = fs.createReadStream('movie.img');
+
+movie.pipe(zip).pipe(fs.createWritableStream('movie.img.zip'));
+```
+
+The program doesn't crash half way through and the image is correctly zipped on your disk, isn't that awesome?
+Stream are basically pipes. They can be readable, writable or both and are easy to reason about -- you can pipe a readable stream to a writable stream by doing `input.pipe(output)`. 
+The `pipe` method connects an input to an output, automatically managing the flow so that the destination is not overwhelmed by a fast source.
 
 ## Readable
 A readable stream is a stream that provides an output. Data can be pushed through the stream using the `push` method.
@@ -29,6 +52,9 @@ MyReadable.prototype._read = function (size) {
   /* more code */
 };
 ```
+
+### Strings and Buffers
+The push method accepts only Buffers or Strings (* and objects, but more on these later).
 
 ## Writable
 A writable stream is a stream that consumes an input (readable and writeable
