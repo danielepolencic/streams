@@ -1,65 +1,60 @@
-var RandomNumbers = require('./stream-01-readable.js'),
-    Logger = require('./stream-02-writable.js'),
-    stream = require('stream'),
+var RandomNumbers = require('./stream-01-readable.js')
+  , Logger = require('./stream-02-writable.js')
+  , Transform = require('stream').Transform;
 
-    random,
-    odd,
-    even,
-    pool;
-
-function Even(){
-  stream.Transform.call(this);
+function Even () {
+  Transform.call(this);
 }
 
-Even.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Even } } );
+Even.prototype = Object.create(Transform.prototype);
 
-Even.prototype._transform = function( chunk, encoding, done ){
+Even.prototype._transform = function (chunk, encoding, done) {
   var number = parseInt(chunk.toString('ascii'), 10);
-  this.push( number % 2 === 0 ? number + '' : '' );
+  this.push(number % 2 === 0 ? number + '' : '');
   done();
+};
+
+function Odd () {
+  Transform.call(this);
 }
 
-function Odd(){
-  stream.Transform.call(this);
-}
+Odd.prototype = Object.create(Transform.prototype);
 
-Odd.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Odd } } );
-
-Odd.prototype._transform = function( chunk, encoding, done ){
+Odd.prototype._transform = function (chunk, encoding, done) {
   var number = parseInt(chunk.toString('ascii'), 10);
-  this.push( number % 2 !== 0 ? number + '' : '' );
+  this.push(number % 2 !== 0 ? number + '' : '');
   done();
+};
+
+function Mixer () {
+  Transform.call(this);
 }
 
-function Pool(){
-  stream.Transform.call(this);
-}
+Mixer.prototype = Object.create(Transform.prototype);
 
-Pool.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Pool } } );
-
-Pool.prototype._transform = function( chunk, encoding, done ){
-  this.push( chunk );
+Mixer.prototype._transform = function (chunk, encoding, done) {
+  this.push(chunk);
   done();
-}
+};
 
-random = new RandomNumbers();
-odd = new Odd();
-even = new Even();
-pool = new Pool();
+var random = new RandomNumbers();
+var odd = new Odd();
+var even = new Even();
+var mixer = new Mixer();
 
 random
   .pipe(odd)
-  .pipe(pool)
+  .pipe(mixer);
 
 random
   .pipe(even)
-  .pipe(pool)
+  .pipe(mixer);
+
+mixer
+  .pipe(new Logger('mixer:'));
 
 odd
-  .pipe( new Logger('odd:') )
+  .pipe(new Logger('odd:'));
 
 even
-  .pipe( new Logger('even:') )
-
-pool
-  .pipe( new Logger('pool:') )
+  .pipe(new Logger('even:'));

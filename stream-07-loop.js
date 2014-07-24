@@ -1,35 +1,28 @@
 var RandomNumbers = require('./stream-01-readable.js'),
-    Logger = require('./stream-02-writable.js'),
-    stream = require('stream'),
+  Logger = require('./stream-02-writable.js'),
+  Transform = require('stream').Transform;
 
-    random,
-    network,
-    current_stream;
-
-function Noop( index ){
-  stream.Transform.call(this);
+function Noop (index) {
+  Transform.call(this);
   this.index = index.toString() || 'no index defined';
 }
 
-Noop.prototype = Object.create( stream.Transform.prototype, { constructor : { value : Noop } } );
+Noop.prototype = Object.create(Transform.prototype);
 
-Noop.prototype._transform = function( chunk, encoding, done ){
+Noop.prototype._transform = function (chunk, encoding, done) {
   console.log('i: ' + this.index + ' |', chunk.toString('ascii'));
   this.push(chunk);
   done();
-}
+};
 
 random = new RandomNumbers();
 
-network = current_stream = new stream.PassThrough();
+network = current_stream = new require('stream').PassThrough();
 
-for( var i = 0; i < 5; i += 1 ){
-  // .pipe( stream ) returns the dest
-  current_stream = current_stream.pipe( new Noop(i) );
+for (var i = 0; i < 5; i += 1) {
+  current_stream = current_stream.pipe(new Noop(i));
 }
 
 random
-  .pipe( network )
-  .pipe( new Logger() )
-
-
+  .pipe(network)
+  .pipe(new Logger());
